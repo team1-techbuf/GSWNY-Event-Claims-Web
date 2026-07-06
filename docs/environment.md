@@ -4,6 +4,8 @@ Do not commit `.env` files, service account JSON, private keys, or generated bui
 
 ## Frontend `.env.local`
 
+Copy `.env.example` to `.env.local`, then fill in every `replace-with-*` value.
+
 ```text
 VITE_FIREBASE_API_KEY=
 VITE_FIREBASE_AUTH_DOMAIN=
@@ -23,6 +25,9 @@ http://127.0.0.1:5001/gswny-event-claims/us-central1/api
 For deployed Hosting, it can be left blank if `/api/**` is rewritten to the `api` Function.
 
 ## Functions Environment/Secrets
+
+For emulator use, copy `functions/.env.example` to `functions/.env`, then fill
+in `SHEET_ID` and one Google credential option.
 
 ```text
 SHEET_ID=
