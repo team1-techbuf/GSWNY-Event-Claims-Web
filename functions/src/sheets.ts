@@ -83,7 +83,6 @@ interface RawSheetRow {
 }
 
 export class SheetsService {
-  private readonly spreadsheetId = requireEnv("SHEET_ID");
   private sheetsClient: sheets_v4.Sheets | null = null;
 
   async getUsers(): Promise<RowWithNumber<AppUser>[]> {
@@ -260,6 +259,10 @@ export class SheetsService {
         values: [headers.map((header) => values[header] ?? "")],
       },
     });
+  }
+
+  private get spreadsheetId(): string {
+    return requireEnv("SHEET_ID");
   }
 }
 
