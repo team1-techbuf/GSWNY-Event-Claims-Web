@@ -51,7 +51,7 @@ const EVENT_HEADERS = [
   "updated_at",
 ] as const;
 
-const CLAIM_HEADERS = [
+const CLAIM_REQUIRED_HEADERS = [
   "claim_id",
   "event_id",
   "slot_type",
@@ -60,8 +60,6 @@ const CLAIM_HEADERS = [
   "claim_status",
   "claimed_at",
   "canceled_at",
-  "cancelled_by",
-  "cancel_reason",
 ] as const;
 
 const USER_HEADERS = [
@@ -155,7 +153,7 @@ export class SheetsService {
   }
 
   async getClaims(): Promise<RowWithNumber<ClaimRecord>[]> {
-    const rows = await this.readRows("Claims", CLAIM_HEADERS);
+    const rows = await this.readRows("Claims", CLAIM_REQUIRED_HEADERS);
     return rows.map(({rowNumber, values}) => ({
       rowNumber,
       claimId: values.claim_id,
@@ -166,17 +164,26 @@ export class SheetsService {
       claimStatus: values.claim_status === "cancelled" ? "cancelled" : "active",
       claimedAt: values.claimed_at,
       canceledAt: values.canceled_at,
-      cancelledBy: values.cancelled_by,
-      cancelReason: values.cancel_reason,
+      cancelledBy: values.cancelled_by ?? "",
+      cancelReason: values.cancel_reason || values.cancellation_reason || "",
     }));
   }
 
   async appendClaim(claim: ClaimRecord): Promise<void> {
-    await this.appendRow("Claims", CLAIM_HEADERS, claimToSheetRow(claim));
+    await this.appendRowForExistingHeaders(
+      "Claims",
+      CLAIM_REQUIRED_HEADERS,
+      claimToSheetRow(claim),
+    );
   }
 
   async updateClaim(claim: RowWithNumber<ClaimRecord>): Promise<void> {
-    await this.updateRow("Claims", CLAIM_HEADERS, claim.rowNumber, claimToSheetRow(claim));
+    await this.updateRowForExistingHeaders(
+      "Claims",
+      CLAIM_REQUIRED_HEADERS,
+      claim.rowNumber,
+      claimToSheetRow(claim),
+    );
   }
 
   private async client(): Promise<sheets_v4.Sheets> {
@@ -217,14 +224,37 @@ export class SheetsService {
       }
     }
 
+    const keyHeader = expectedHeaders[0];
     return values.slice(1)
       .map((row, index) => ({
         rowNumber: index + 2,
         values: valuesForHeaders(headerRow, row),
       }))
       .filter(({values: rowValues}) =>
-        Object.values(rowValues).some((value) => String(value).trim() !== ""),
+        String(rowValues[keyHeader] ?? "").trim() !== "",
       );
+  }
+
+  private async readHeaders(
+    sheetName: string,
+    requiredHeaders: readonly string[],
+  ): Promise<string[]> {
+    const client = await this.client();
+    const response = await client.spreadsheets.values.get({
+      spreadsheetId: this.spreadsheetId,
+      range: quoteSheetRange(sheetName, "1:1"),
+    });
+    const headerRow = (response.data.values?.[0] ?? [])
+      .map((header) => String(header).trim())
+      .filter(Boolean);
+
+    for (const header of requiredHeaders) {
+      if (!headerRow.includes(header)) {
+        throw new Error(`Sheet "${sheetName}" is missing required header "${header}"`);
+      }
+    }
+
+    return headerRow;
   }
 
   private async appendRow(
@@ -244,6 +274,15 @@ export class SheetsService {
     });
   }
 
+  private async appendRowForExistingHeaders(
+    sheetName: string,
+    requiredHeaders: readonly string[],
+    values: SheetObject,
+  ): Promise<void> {
+    const headers = await this.readHeaders(sheetName, requiredHeaders);
+    await this.appendRow(sheetName, headers, values);
+  }
+
   private async updateRow(
     sheetName: string,
     headers: readonly string[],
@@ -259,6 +298,16 @@ export class SheetsService {
         values: [headers.map((header) => values[header] ?? "")],
       },
     });
+  }
+
+  private async updateRowForExistingHeaders(
+    sheetName: string,
+    requiredHeaders: readonly string[],
+    rowNumber: number,
+    values: SheetObject,
+  ): Promise<void> {
+    const headers = await this.readHeaders(sheetName, requiredHeaders);
+    await this.updateRow(sheetName, headers, rowNumber, values);
   }
 
   private get spreadsheetId(): string {
@@ -322,5 +371,6 @@ function claimToSheetRow(claim: ClaimRecord): SheetObject {
     canceled_at: claim.canceledAt,
     cancelled_by: normalizeEmail(claim.cancelledBy),
     cancel_reason: claim.cancelReason,
+    cancellation_reason: claim.cancelReason,
   };
 }

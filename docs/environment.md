@@ -13,6 +13,7 @@ VITE_FIREBASE_PROJECT_ID=
 VITE_FIREBASE_STORAGE_BUCKET=
 VITE_FIREBASE_MESSAGING_SENDER_ID=
 VITE_FIREBASE_APP_ID=
+VITE_FIREBASE_MEASUREMENT_ID=
 VITE_API_BASE_URL=
 ```
 
@@ -39,10 +40,18 @@ ALLOWED_ORIGINS=
 
 `SHEET_ID` is required.
 
+Do not add `FIREBASE_PROJECT_ID` or `GCLOUD_PROJECT` to `functions/.env`.
+Firebase reserves those keys and the Functions emulator will reject the env
+file if they are present.
+
 Use one Google credential option:
 
 - `GOOGLE_APPLICATION_CREDENTIALS`: local path to an uncommitted service account JSON file.
 - `GOOGLE_SERVICE_ACCOUNT_JSON` or `GOOGLE_SERVICE_ACCOUNT_KEY`: JSON string secret/env var.
 - Deployed ADC: share the Sheet with the deployed Function service account and rely on Google Application Default Credentials.
+
+The Google Sheets API must be enabled for the Google Cloud project that owns
+the chosen credentials. For the local service account currently used here, that
+project is `calcium-subject-501617-n3`.
 
 `ALLOWED_ORIGINS` is a comma-separated list. Localhost origins `http://localhost:5173` and `http://127.0.0.1:5173` are allowed by default. Add the Firebase Hosting origin before production use.
