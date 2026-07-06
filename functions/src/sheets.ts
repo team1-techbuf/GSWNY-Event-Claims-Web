@@ -193,6 +193,8 @@ export class SheetsService {
 
     const credentialsJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON ??
       process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+    const keyFile = process.env.GOOGLE_SERVICE_ACCOUNT_FILE ??
+      process.env.GOOGLE_SERVICE_ACCOUNT_PATH;
     const credentials = credentialsJson ? JSON.parse(credentialsJson) : undefined;
     if (credentials?.private_key) {
       credentials.private_key = String(credentials.private_key).replace(/\\n/g, "\n");
@@ -200,6 +202,7 @@ export class SheetsService {
 
     const auth = new google.auth.GoogleAuth({
       credentials,
+      keyFile,
       scopes: SCOPES,
     });
     this.sheetsClient = google.sheets({version: "v4", auth});

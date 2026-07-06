@@ -33,6 +33,7 @@ in `SHEET_ID` and one Google credential option.
 ```text
 SHEET_ID=
 GOOGLE_APPLICATION_CREDENTIALS=
+GOOGLE_SERVICE_ACCOUNT_FILE=
 GOOGLE_SERVICE_ACCOUNT_JSON=
 GOOGLE_SERVICE_ACCOUNT_KEY=
 ALLOWED_ORIGINS=
@@ -47,6 +48,7 @@ file if they are present.
 Use one Google credential option:
 
 - `GOOGLE_APPLICATION_CREDENTIALS`: local path to an uncommitted service account JSON file.
+- `GOOGLE_SERVICE_ACCOUNT_FILE`: local path to an uncommitted service account JSON file. This is preferred with the Functions emulator because Firebase may override `GOOGLE_APPLICATION_CREDENTIALS` internally.
 - `GOOGLE_SERVICE_ACCOUNT_JSON` or `GOOGLE_SERVICE_ACCOUNT_KEY`: JSON string secret/env var.
 - Deployed ADC: share the Sheet with the deployed Function service account and rely on Google Application Default Credentials.
 
