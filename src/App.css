@@ -20,21 +20,21 @@ button {
 
 .app-stage {
   min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 20px;
-  background: #e9ece7;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 32px 16px;
+  background: #f3f4f1;
 }
 
 .phone-shell {
   position: relative;
-  width: min(100vw, 402px);
-  height: min(100vh, 874px);
-  min-height: 720px;
-  overflow: hidden;
+  width: min(100%, 402px);
+  height: 874px;
+  overflow: visible;
   border-radius: 0;
   background: var(--cream);
-  box-shadow: 0 24px 80px rgb(0 0 0 / 22%);
+  box-shadow: 0 18px 48px rgb(0 0 0 / 14%);
 }
 
 .screen {
@@ -87,6 +87,7 @@ button {
   font-size: 31px;
   font-weight: 800;
   line-height: 1;
+  white-space: nowrap;
 }
 
 .primary-button {
@@ -280,11 +281,11 @@ button {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 80px;
+  height: 88px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   align-items: center;
-  padding: 6px 27px 10px;
+  padding: 7px 27px 17px;
   background: #fff;
   box-shadow: 0 -3px 7px rgb(34 26 15 / 18%);
 }
@@ -304,7 +305,7 @@ button {
   display: grid;
   place-items: center;
   gap: 2px;
-  height: 54px;
+  height: 58px;
   border-radius: 8px;
   background: transparent;
   color: var(--ink);
@@ -314,8 +315,8 @@ button {
 }
 
 .nav-item svg {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
 }
 
 .nav-item.active {
@@ -331,7 +332,7 @@ button {
 
 .events-screen,
 .calendar-screen {
-  padding: 65px 22px 104px;
+  padding: 65px 22px 112px;
 }
 
 .filter-row {
@@ -368,11 +369,12 @@ button {
 }
 
 .event-list {
-  max-height: 535px;
+  height: 524px;
   overflow: auto;
   display: grid;
   gap: 18px;
-  padding: 24px 3px 90px;
+  align-content: start;
+  padding: 24px 3px 104px;
   scrollbar-width: thin;
 }
 
@@ -529,7 +531,7 @@ button {
   position: relative;
   display: grid;
   grid-template-columns: 34px repeat(5, 1fr);
-  grid-template-rows: 35px repeat(10, 55px);
+  grid-template-rows: 35px repeat(10, 47px);
   margin-top: 0;
   padding-right: 14px;
 }
@@ -673,7 +675,7 @@ button {
 }
 
 .add-event-screen {
-  padding: 64px 22px 104px;
+  padding: 64px 22px 112px;
 }
 
 .add-event-screen h1 {
@@ -685,7 +687,7 @@ button {
 
 .event-form {
   display: grid;
-  gap: 18px;
+  gap: 16px;
 }
 
 .event-field {
@@ -700,35 +702,31 @@ button {
 }
 
 .event-field .text-field {
-  min-height: 55px;
+  min-height: 54px;
 }
 
 .add-actions {
-  position: absolute;
-  left: 26px;
-  right: 25px;
-  bottom: 88px;
   display: flex;
-  justify-content: space-between;
-  gap: 18px;
+  gap: 17px;
+  margin: 12px 3px 0;
 }
 
 .add-actions .primary-button,
 .add-actions .secondary-button {
   flex: 1;
   min-width: 0;
-  font-size: 27px;
+  font-size: 25px;
+  white-space: normal;
 }
 
 @media (max-width: 520px) {
   .app-stage {
     padding: 0;
+    background: var(--cream);
   }
 
   .phone-shell {
-    width: 100vw;
-    height: 100vh;
-    min-height: 720px;
+    width: 100%;
     box-shadow: none;
   }
 }
