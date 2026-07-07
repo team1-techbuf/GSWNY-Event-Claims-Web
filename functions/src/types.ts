@@ -40,6 +40,8 @@ export interface School {
   cityTown: string;
   zipCode: string;
   notes: string;
+  latitude: string;
+  longitude: string;
 }
 
 export interface EventRecord {

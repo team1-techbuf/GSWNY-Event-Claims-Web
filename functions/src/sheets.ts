@@ -30,6 +30,8 @@ const SCHOOL_HEADERS = [
   "city_town",
   "zip_code",
   "notes",
+  "latitude",
+  "longitude",
 ] as const;
 
 const EVENT_HEADERS = [
@@ -167,6 +169,8 @@ export class SheetsService {
       cityTown: values.city_town,
       zipCode: values.zip_code,
       notes: values.notes,
+      latitude: values.latitude,
+      longitude: values.longitude,
     }));
   }
 

@@ -6,7 +6,8 @@ Mobile web app for WNY Girl Scouts event slot claims. Staff create and manage sc
 
 - Email + password auth with signup, email verification, and a pending-approval gate.
 - Role-gated UI: volunteers can only claim; staff/admin can also add/edit/publish events. The Staff tab is hidden from volunteers.
-- Filterable event list by status, zip code, service unit, date, and time block (e.g. 8am–12pm), with list and agenda views.
+- Filterable event list by status, zip code, service unit, date, and time block (e.g. 8am–12pm), with list, agenda, and map views.
+- Map view (Leaflet + OpenStreetMap, no API key) with markers color-coded by coverage need (needs staff / volunteer / both) and per-school event popups with claim/drop. Schools are geocoded into `latitude`/`longitude` columns on the `Schools` tab.
 - Priority badges for open events within 7 days that still need coverage.
 - Claim and drop slots with confirmation emails to the affected member.
 - Volunteers mark their claimed events completed from the "Me" tab and record lead-card counts and notes.

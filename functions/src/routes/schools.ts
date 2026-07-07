@@ -17,6 +17,8 @@ export function schoolsRouter(sheets: SheetsService): Router {
         cityTown: school.cityTown,
         zipCode: school.zipCode,
         notes: school.notes,
+        latitude: school.latitude,
+        longitude: school.longitude,
       })));
     } catch (error) {
       next(error);

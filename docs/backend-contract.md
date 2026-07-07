@@ -62,7 +62,9 @@ Returns the approved app user:
 
 Protected. Any approved user may read schools.
 
-Returns an array of schools with camelCase field names.
+Returns an array of schools with camelCase field names, including `latitude` and
+`longitude` (string values, blank if a school has not been geocoded). The `Schools`
+tab has `latitude`/`longitude` columns; these power the Events map view.
 
 ## GET /events
 
@@ -89,7 +91,9 @@ Returns events joined with `Schools` and active `Claims`:
       "street": "500 Elm St",
       "cityTown": "Portville",
       "zipCode": "14770",
-      "notes": ""
+      "notes": "",
+      "latitude": "42.0340895",
+      "longitude": "-78.3310632"
     },
     "eventDate": "2024-08-28",
     "dayOfWeek": "Wednesday",

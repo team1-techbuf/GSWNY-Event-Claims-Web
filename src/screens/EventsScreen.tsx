@@ -3,7 +3,8 @@ import type { JoinedEvent, SlotType, UserRole } from '../api'
 import { AppLogo } from '../components/AppLogo'
 import { EventCard } from '../components/EventCard'
 import { FilterPanel } from '../components/FilterPanel'
-import { CalendarLineIcon, FilterIcon, ListIcon, PlusIcon } from '../components/Icons'
+import { MapView } from '../components/MapView'
+import { CalendarLineIcon, FilterIcon, ListIcon, LocationIcon, PlusIcon } from '../components/Icons'
 import {
   activeFilterCount,
   emptyFilters,
@@ -38,7 +39,7 @@ export function EventsScreen({
 }: EventsScreenProps) {
   const [filters, setFilters] = useState<EventFilters>(emptyFilters)
   const [showFilters, setShowFilters] = useState(false)
-  const [view, setView] = useState<'list' | 'agenda'>('list')
+  const [view, setView] = useState<'list' | 'agenda' | 'map'>('list')
 
   const visible = useMemo(
     () => sortEvents(filterEvents(events, filters)),
@@ -68,13 +69,29 @@ export function EventsScreen({
           Filter{count ? ` (${count})` : ''}
         </button>
         <span className="results-count">{visible.length} events</span>
+      </div>
+
+      <div className="view-switch" role="tablist" aria-label="Event views">
         <button
           type="button"
-          className="view-toggle-inline"
-          onClick={() => setView((prev) => (prev === 'list' ? 'agenda' : 'list'))}
-          aria-label="Toggle view"
+          className={view === 'list' ? 'view-seg active' : 'view-seg'}
+          onClick={() => setView('list')}
         >
-          {view === 'list' ? <CalendarLineIcon /> : <ListIcon />}
+          <ListIcon /> List
+        </button>
+        <button
+          type="button"
+          className={view === 'agenda' ? 'view-seg active' : 'view-seg'}
+          onClick={() => setView('agenda')}
+        >
+          <CalendarLineIcon /> Agenda
+        </button>
+        <button
+          type="button"
+          className={view === 'map' ? 'view-seg active' : 'view-seg'}
+          onClick={() => setView('map')}
+        >
+          <LocationIcon /> Map
         </button>
       </div>
 
@@ -82,7 +99,16 @@ export function EventsScreen({
         <FilterPanel filters={filters} onChange={setFilters} onClose={() => setShowFilters(false)} />
       )}
 
-      {visible.length === 0 ? (
+      {view === 'map' ? (
+        <MapView
+          events={visible}
+          role={role}
+          email={email}
+          busy={busy}
+          onClaim={onClaim}
+          onDrop={onDrop}
+        />
+      ) : visible.length === 0 ? (
         <p className="empty-state">No events match your filters.</p>
       ) : view === 'list' ? (
         <div className="event-list">

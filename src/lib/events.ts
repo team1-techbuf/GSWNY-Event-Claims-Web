@@ -101,6 +101,61 @@ export function sortEvents(events: JoinedEvent[]): JoinedEvent[] {
   })
 }
 
+// Marker/dot color for a coverage status. Distinguishes what a slot needs:
+// red = needs both, blue = needs staff, orange = needs volunteer.
+export function coverageColor(status: string): string {
+  switch (status) {
+    case 'uncovered':
+      return '#b4331f' // red — needs staff AND volunteer
+    case 'needs_staff':
+      return '#1f5c8a' // blue — needs staff
+    case 'needs_volunteer':
+      return '#d98a00' // orange — needs volunteer
+    case 'partially_covered':
+      return '#8a6d00' // amber — one slot still open
+    case 'fully_covered':
+      return '#2f6a1e' // green — covered
+    case 'completed':
+      return '#4a7fa5'
+    default:
+      return '#8a8378' // gray — draft / cancelled / not needed
+  }
+}
+
+// Higher = more urgent; used to pick a single color for a school that hosts
+// multiple events.
+export function coverageUrgency(status: string): number {
+  switch (status) {
+    case 'uncovered':
+      return 4
+    case 'needs_staff':
+    case 'needs_volunteer':
+      return 3
+    case 'partially_covered':
+      return 2
+    case 'fully_covered':
+      return 1
+    default:
+      return 0
+  }
+}
+
+// Parse a school's stored lat/lng strings into a [lat, lng] tuple, or null if
+// the school has no usable coordinates.
+export function parseCoords(
+  school: { latitude?: string; longitude?: string } | null,
+): [number, number] | null {
+  if (!school) {
+    return null
+  }
+  const lat = Number.parseFloat(school.latitude ?? '')
+  const lng = Number.parseFloat(school.longitude ?? '')
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return null
+  }
+  return [lat, lng]
+}
+
 export function coverageLabel(event: JoinedEvent): string {
   switch (event.availability.coverageStatus) {
     case 'uncovered':
