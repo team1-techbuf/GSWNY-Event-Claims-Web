@@ -61,6 +61,8 @@ const CLAIM_REQUIRED_HEADERS = [
   "claim_status",
   "claimed_at",
   "canceled_at",
+  "cancelled_by",
+  "cancellation_reason",
 ] as const;
 
 const USER_HEADERS = [
