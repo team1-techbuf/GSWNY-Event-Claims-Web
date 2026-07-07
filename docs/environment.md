@@ -1,6 +1,22 @@
-# Environment
+# Environment & Settings Reference
 
-Do not commit `.env` files, service account JSON, private keys, or generated build output.
+This is the **technical reference** for every configuration value. If you're
+setting the app up to go live, follow **[deployment.md](deployment.md)** — it walks
+through these in order. To understand the data itself, see
+**[google-sheet-setup.md](google-sheet-setup.md)**.
+
+**Which file holds what:**
+
+| File | Used for | Committed? |
+| --- | --- | --- |
+| `.env.local` | Frontend keys for **local development** | No (git‑ignored) |
+| `.env.production` | Frontend keys baked into the **published** website | No (git‑ignored) |
+| `functions/.env` | API settings for the **local emulator** | No (git‑ignored) |
+| `functions/.env.<projectId>` | API settings for the **deployed** function (e.g. `functions/.env.gswny-event-claims`) | No (git‑ignored) |
+| `*.env.example` | Templates showing the expected keys | Yes |
+
+> Never commit real `.env` files, service‑account JSON, private keys, or the build
+> output — they're git‑ignored on purpose.
 
 ## Frontend `.env.local`
 

@@ -1,96 +1,128 @@
-# GSWNY Event Claims Web
+# GoScouts — GSWNY Event Claims
 
-Mobile web app for WNY Girl Scouts event slot claims. Staff create and manage school events; staff and volunteers sign in with Firebase Auth (email + password) to claim available event slots. Google Sheets is the v1 data store.
+GoScouts is a mobile‑friendly web app that lets **Girl Scouts of Western New York**
+staff and volunteers find school events, **claim a slot** to help, and keep track of
+which events still need people. Staff can also **create and manage events** and
+nudge volunteers when help is needed.
 
-## Features
+The app stores everything in a **Google Sheet**, so there is no complicated
+database to run — the people who already manage the spreadsheet stay in control of
+the data.
 
-- Email + password auth with signup, email verification, and a pending-approval gate.
-- Role-gated UI: volunteers can only claim; staff/admin can also add/edit/publish events. The Staff tab is hidden from volunteers.
-- Filterable event list by status, zip code, service unit, date, and time block (e.g. 8am–12pm), with list, agenda, and map views.
-- Map view (Leaflet + OpenStreetMap, no API key) with markers color-coded by coverage need (needs staff / volunteer / both) and per-school event popups with claim/drop. Schools are geocoded into `latitude`/`longitude` columns on the `Schools` tab.
-- Priority badges for open events within 7 days that still need coverage.
-- Claim and drop slots with confirmation emails to the affected member.
-- Volunteers mark their claimed events completed from the "Me" tab and record lead-card counts and notes.
-- Staff broadcast a "volunteers needed" email for uncovered upcoming events.
-- Claim concurrency safety: concurrent double-claims are reconciled so exactly one active claim survives per slot.
-- Hover and click animations throughout.
+---
 
-## Architecture
+## What it does (in plain terms)
 
-- Vite React TypeScript frontend in `src`.
-- Firebase Auth email/password identity in the browser; an `AuthProvider` context resolves the approved app user and role.
-- Firebase Functions TypeScript API exported as `api`.
-- Express routes verify Firebase ID tokens with `firebase-admin`.
-- New signups create inactive rows in the `Users` Google Sheet tab; verified web signups auto-activate.
-- Approved app users and roles are read from the `Users` Google Sheet tab.
-- Events are read from `Events`, joined with `Schools` and active `Claims`, and carry computed availability + priority.
-- Claims append rows to `Claims`; cancellation marks claim rows as `cancelled`; concurrent claims are reconciled after append.
-- Notifications are sent over SMTP (or logged when SMTP is unconfigured). See [docs/environment.md](docs/environment.md).
-- Firebase Hosting serves the Vite `dist` directory and rewrites `/api/**` to the API function.
+- **Sign in with an email and password.** New people can sign up; they get access
+  once they verify their email (and, for the first time, are approved).
+- **Browse events** in a list, an agenda by day, or on a **map**. The map pins each
+  school and colors it by what it still needs (staff, volunteer, both, or covered).
+- **Filter events** by status, zip code, service unit, date, and time of day
+  (e.g. 8am–12pm).
+- **Claim or drop a slot** with one tap. A confirmation email is sent automatically.
+- **Priority flags** highlight events happening within the next 7 days that still
+  need someone.
+- **"Me" tab:** see the events you signed up for and, afterward, mark one
+  **completed** and record how many lead cards you collected plus any notes.
+- **Staff tools:** create/edit events, publish drafts, email volunteers about
+  events that still need coverage, and review **Active** and **Completed** event
+  lists (with sorting and filters). Volunteers never see the Staff tab.
 
-## Local Setup
+Roles decide what each person can do: **volunteers** can claim; **staff** and
+**admins** can also create and manage events.
 
-1. Install dependencies:
+---
 
-   ```bash
-   npm install
-   npm install --prefix functions
-   ```
+## Documentation
 
-2. Create `.env.local` for the frontend. See [docs/environment.md](docs/environment.md).
+Start with the guide that matches what you need to do:
 
-3. Configure Functions environment variables or local shell values:
+| I want to… | Read this |
+| --- | --- |
+| Understand and edit the data (add users, schools, events) | **[docs/google-sheet-setup.md](docs/google-sheet-setup.md)** |
+| Put the app online / update the live app | **[docs/deployment.md](docs/deployment.md)** |
+| Fix a problem a user is reporting | **[docs/troubleshooting.md](docs/troubleshooting.md)** |
+| Keep the app and spreadsheet healthy over time | **[docs/maintenance.md](docs/maintenance.md)** |
+| Look up exact settings / environment variables | **[docs/environment.md](docs/environment.md)** |
+| See the exact API the app uses (developers) | **[docs/backend-contract.md](docs/backend-contract.md)** |
+| Test everything works after a change | **[docs/manual-test-checklist.md](docs/manual-test-checklist.md)** |
 
-   ```bash
-   export SHEET_ID="your-google-sheet-id"
-   export GOOGLE_APPLICATION_CREDENTIALS="/path/to/service-account.json"
-   export ALLOWED_ORIGINS="http://localhost:5173"
-   ```
+> **Not technical?** The Google Sheet setup, troubleshooting, and maintenance
+> guides are written for you. The deployment guide is mostly for whoever puts the
+> app online, but it starts with a plain‑language overview.
 
-4. Enable Firebase Auth email/password in the Firebase project. Email
-   verification is sent by the app after signup; it does not require a separate
-   Firebase provider.
+---
 
-5. Share the Google Sheet with the service account email.
+## How it fits together (technical overview)
 
-## Run Locally
+```
+Phone / browser
+   │  (email + password sign‑in)
+   ▼
+React web app  ──►  Firebase Hosting  ──►  /api/**  ──►  Firebase Function (Express API)
+                                                              │
+                                                              ▼
+                                                        Google Sheet
+                                                (Users, Schools, Events, Claims)
+```
 
-Frontend:
+- **Frontend:** Vite + React + TypeScript (in `src/`). Served as static files by
+  **Firebase Hosting**.
+- **Identity:** **Firebase Authentication** (email/password). The app requires a
+  verified email.
+- **API:** a **Firebase Function** (`functions/`) running an Express app. It checks
+  each request's Firebase login, then reads/writes the Google Sheet.
+- **Data:** a **Google Sheet** with tabs `Users`, `Schools`, `Events`, `Claims`,
+  and `Config`. See the [sheet setup guide](docs/google-sheet-setup.md).
+- **Email:** confirmation and "volunteers needed" emails are sent over SMTP, or
+  logged if SMTP is not configured (safe for testing).
+- **Maps:** OpenStreetMap tiles via Leaflet — **no API key or billing required**.
+
+### Run it on your own computer (for developers)
+
+You need [Node.js 24](https://nodejs.org/), the
+[Firebase CLI](https://firebase.google.com/docs/cli) (`npm i -g firebase-tools`),
+and Java (for the Firebase emulators).
 
 ```bash
+# 1. Install dependencies
+npm install
+npm install --prefix functions
+
+# 2. Configure local settings (copy the examples and fill them in)
+cp .env.example .env.local                 # frontend Firebase keys
+cp functions/.env.example functions/.env   # SHEET_ID + Google credentials
+# See docs/environment.md for what each value means.
+
+# 3. Start the backend (Functions emulator) in one terminal
+npm run build --prefix functions
+npm run emulators
+
+# 4. Start the frontend in another terminal
 npm run dev
 ```
 
-Functions emulator:
+Then open the printed local URL (usually http://localhost:5173). Sign‑in uses the
+real Firebase project, so the email must exist in the `Users` sheet as active (or
+sign up and verify). Emails are logged to the emulator terminal unless SMTP is set.
+
+### Build, lint, and test
 
 ```bash
-npm run emulators
+npm run build                      # build the frontend
+npm run lint                       # lint the frontend
+npm run build --prefix functions   # compile the API
+npm run lint  --prefix functions   # lint the API
+npm run test  --prefix functions   # run API unit tests
 ```
 
-For local frontend-to-functions calls, set `VITE_API_BASE_URL` to the Functions emulator URL, for example:
+### Going live
 
-```text
-http://127.0.0.1:5001/gswny-event-claims/us-central1/api
-```
-
-## Build And Test
+See **[docs/deployment.md](docs/deployment.md)** for the full walkthrough. The short
+version:
 
 ```bash
-npm run build
-npm run lint
-npm run build --prefix functions
-npm run lint --prefix functions
-npm run test --prefix functions
+npm run build                      # build frontend into dist/
+npm run build --prefix functions   # compile the API
+firebase deploy                    # publish hosting + the API function
 ```
-
-## Deploy
-
-Use the configured Firebase project alias in `.firebaserc`.
-
-```bash
-npm run build
-npm run build --prefix functions
-npm run deploy
-```
-
-Before production deploy, set Functions runtime environment/secrets for `SHEET_ID`, Google credentials or ADC access, and `ALLOWED_ORIGINS` with the Hosting origin.

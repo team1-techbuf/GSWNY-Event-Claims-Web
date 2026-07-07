@@ -1,5 +1,9 @@
 # Manual Test Checklist
 
+Use this after setting up, deploying, or making a change, to confirm everything
+works end to end. Anyone can run through it — no coding needed. If a step fails,
+see **[troubleshooting.md](troubleshooting.md)**.
+
 1. Enable Firebase Auth email/password for the Firebase project.
 2. Create a Firebase test user with email/password.
 3. Add the same lowercase email to the `Users` tab with `active` set to `TRUE`.

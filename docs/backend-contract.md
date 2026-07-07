@@ -1,4 +1,9 @@
-# Backend Contract
+# Backend Contract (API Reference)
+
+> **For developers.** This is the exact HTTP contract between the web app and the
+> Firebase Function. If you're not integrating with the API directly, you don't
+> need this — see the [README](../README.md) and the setup/maintenance guides
+> instead.
 
 Base path is the deployed Function URL or same-origin `/api` when served through Firebase Hosting.
 
