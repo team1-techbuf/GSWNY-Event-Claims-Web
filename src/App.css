@@ -1453,7 +1453,7 @@ button {
    ============================================================ */
 .toast {
   position: absolute;
-  z-index: 30;
+  z-index: 2000;
   left: 50%;
   bottom: 104px;
   transform: translateX(-50%);
@@ -1519,6 +1519,9 @@ button {
   flex: 1;
   min-height: 0;
   margin: 10px 3px 4px;
+  /* Trap Leaflet's internal z-indexes (panes/controls go up to ~1000) inside
+     this wrapper so they can't paint over the toast or bottom nav. */
+  isolation: isolate;
 }
 
 .leaflet-map {
