@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import type { JoinedEvent, SlotType, UserRole } from '../api'
 import { AppLogo } from '../components/AppLogo'
 import { EventCard } from '../components/EventCard'
+import { SeasonSummary } from '../components/SeasonSummary'
 import { AlertIcon, BellIcon, EditIcon, PlusIcon } from '../components/Icons'
 import { formatDisplayDate, formatTimeRange } from '../lib/events'
 
@@ -87,6 +88,8 @@ export function StaffScreen({
         <AppLogo compact />
       </header>
       <h1 className="staff-title">Staff Dashboard</h1>
+
+      <SeasonSummary events={events} />
 
       {priorityCount > 0 && (
         <div className="priority-callout">

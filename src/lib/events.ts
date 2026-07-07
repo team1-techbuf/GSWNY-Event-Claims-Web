@@ -205,6 +205,97 @@ export function dayOfWeekFromDate(isoDate: string): string {
   ]
 }
 
+const MONTH_LABELS = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+]
+
+export interface SeasonSummaryStats {
+  // Open events whose needed slots are all claimed, out of all open events.
+  openCount: number
+  coveredCount: number
+  coveragePct: number | null // null when there are no open events yet
+  // Lead cards recorded across the whole season.
+  totalLeadCards: number
+  // Events that have happened vs. events still to run (open or draft).
+  completedCount: number
+  remainingCount: number
+}
+
+export interface MonthlyLeadPoint {
+  key: string // 'YYYY-MM', for sorting
+  label: string // 'Aug', or "Aug '24" when the data spans multiple years
+  leads: number
+}
+
+// Season-level rollup for the staff dashboard. "Covered" = an open event whose
+// needed slots are all claimed; "remaining" = events still to run (open/draft).
+// Cancelled events are ignored. It's a single pass over the events already loaded.
+export function seasonSummary(events: JoinedEvent[]): SeasonSummaryStats {
+  let openCount = 0
+  let coveredCount = 0
+  let totalLeadCards = 0
+  let completedCount = 0
+  let remainingCount = 0
+
+  for (const event of events) {
+    if (event.leadCardsCount !== null) {
+      totalLeadCards += event.leadCardsCount
+    }
+    if (event.status === 'open') {
+      openCount += 1
+      if (event.availability.coverageStatus === 'fully_covered') {
+        coveredCount += 1
+      }
+    }
+    if (event.status === 'completed') {
+      completedCount += 1
+    }
+    if (event.status === 'open' || event.status === 'draft') {
+      remainingCount += 1
+    }
+  }
+
+  return {
+    openCount,
+    coveredCount,
+    coveragePct: openCount === 0 ? null : Math.round((coveredCount / openCount) * 100),
+    totalLeadCards,
+    completedCount,
+    remainingCount,
+  }
+}
+
+// Lead cards collected per calendar month, for the season line graph. Groups
+// events with a recorded lead-card count by their event month and sums them,
+// returned in chronological order.
+export function monthlyLeads(events: JoinedEvent[]): MonthlyLeadPoint[] {
+  const byMonth = new Map<string, number>()
+  for (const event of events) {
+    if (event.leadCardsCount === null) {
+      continue
+    }
+    const match = /^(\d{4})-(\d{2})/.exec(event.eventDate.trim())
+    if (!match) {
+      continue
+    }
+    const key = `${match[1]}-${match[2]}`
+    byMonth.set(key, (byMonth.get(key) ?? 0) + event.leadCardsCount)
+  }
+
+  const keys = [...byMonth.keys()].sort()
+  const multiYear = new Set(keys.map((key) => key.slice(0, 4))).size > 1
+  return keys.map((key) => {
+    const [year, month] = key.split('-')
+    const label = MONTH_LABELS[Number(month) - 1] ?? month
+    return {
+      key,
+      label: multiYear ? `${label} '${year.slice(2)}` : label,
+      leads: byMonth.get(key) ?? 0,
+    }
+  })
+}
+
 // Does the current user hold an active claim on either slot of this event?
 export function myClaim(
   event: JoinedEvent,

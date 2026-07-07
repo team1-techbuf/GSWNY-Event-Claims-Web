@@ -1368,6 +1368,118 @@ button {
   font-size: 30px;
 }
 
+/* ============================================================
+   Season summary (staff dashboard header strip + leads graph)
+   ============================================================ */
+.season-summary {
+  flex-shrink: 0;
+  margin: 0 3px 10px;
+}
+
+.season-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--soft-shadow);
+}
+
+.stat-value {
+  color: var(--green);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.stat-label {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.stat-hint {
+  color: #7a7266;
+  font-size: 10px;
+}
+
+.season-chart {
+  padding: 10px 12px 4px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--soft-shadow);
+}
+
+.season-chart-title {
+  margin: 0 0 2px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.season-chart-empty {
+  margin: 0;
+  padding: 8px 2px;
+  color: #7a7266;
+  font-size: 12px;
+}
+
+.leads-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.leads-line {
+  fill: none;
+  stroke: var(--green);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.leads-dot {
+  fill: var(--green);
+  stroke: #fff;
+  stroke-width: 2;
+}
+
+.leads-grid {
+  stroke: rgb(59 51 42 / 10%);
+  stroke-width: 1;
+}
+
+.leads-axis {
+  stroke: rgb(59 51 42 / 28%);
+  stroke-width: 1;
+}
+
+.leads-axis-label {
+  fill: #9a9186;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.leads-value {
+  fill: var(--ink);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.leads-month {
+  fill: #6f675b;
+  font-size: 11px;
+  font-weight: 700;
+}
+
 .priority-callout {
   margin: 0 3px 8px;
   padding: 10px 14px;
