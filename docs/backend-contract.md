@@ -8,7 +8,7 @@ All protected endpoints require:
 Authorization: Bearer <Firebase ID token>
 ```
 
-The API verifies the Firebase token, requires a verified email, normalizes the email, loads the matching row from `Users`, and requires `active` to be `TRUE`. Unauthenticated requests return `401`. Authenticated users with unverified email, missing from `Users`, or inactive users return `403`.
+The API verifies the Firebase token, requires a verified email, normalizes the email, and loads the matching row from `Users`. Web signup rows are auto-activated after email verification. Other inactive users return `403`.
 
 ## GET /health
 
@@ -38,7 +38,8 @@ Request:
 ```
 
 Created rows use the existing `Users` sheet structure with `role` set to
-`volunteer` and `active` set to `FALSE`.
+`volunteer` and `active` set to `FALSE`. After the user verifies their Firebase
+email, their next authenticated API request updates the row to `active=TRUE`.
 
 ## GET /me
 

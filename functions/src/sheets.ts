@@ -76,6 +76,9 @@ const USER_HEADERS = [
   "notes",
 ] as const;
 
+export const WEB_SIGNUP_PENDING_NOTE = "Created from web signup";
+export const WEB_SIGNUP_VERIFIED_NOTE = "Email verified from web signup";
+
 type SheetObject = Record<string, string>;
 
 interface RawSheetRow {
@@ -122,7 +125,7 @@ export class SheetsService {
       active: false,
       county: "",
       suNumber: "",
-      notes: "Created from web signup",
+      notes: WEB_SIGNUP_PENDING_NOTE,
     };
 
     await this.appendRow("Users", USER_HEADERS, userToSheetRow(appUser));
@@ -132,6 +135,23 @@ export class SheetsService {
     }
 
     return createdUser;
+  }
+
+  async activateVerifiedSignupUser(
+    user: RowWithNumber<AppUser>,
+  ): Promise<RowWithNumber<AppUser>> {
+    if (user.active || user.notes !== WEB_SIGNUP_PENDING_NOTE) {
+      return user;
+    }
+
+    const activatedUser = {
+      ...user,
+      active: true,
+      notes: WEB_SIGNUP_VERIFIED_NOTE,
+    };
+
+    await this.updateRow("Users", USER_HEADERS, user.rowNumber, userToSheetRow(activatedUser));
+    return activatedUser;
   }
 
   async getSchools(): Promise<RowWithNumber<School>[]> {

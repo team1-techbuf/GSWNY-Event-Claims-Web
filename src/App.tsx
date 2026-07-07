@@ -71,6 +71,11 @@ function App() {
       setDataLoading(true)
       setMessage('')
       try {
+        await user.reload()
+        if (user.emailVerified) {
+          await user.getIdToken(true)
+        }
+
         const [me, schoolList, eventList] = await Promise.all([
           getMe(user),
           getSchools(user),

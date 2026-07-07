@@ -31,8 +31,16 @@ export function requireAppUser(sheets: SheetsService) {
         throw new ApiError(403, "Please verify your email before using the app.");
       }
 
-      const appUser = await sheets.findUserByEmail(email);
-      if (!appUser || !appUser.active) {
+      let appUser = await sheets.findUserByEmail(email);
+      if (!appUser) {
+        throw new ApiError(403, "User is not approved for this app.");
+      }
+
+      if (!appUser.active) {
+        appUser = await sheets.activateVerifiedSignupUser(appUser);
+      }
+
+      if (!appUser.active) {
         throw new ApiError(403, "User is not approved for this app.");
       }
 
