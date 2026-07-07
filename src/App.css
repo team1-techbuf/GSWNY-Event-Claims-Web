@@ -39,7 +39,7 @@ button {
 
 .screen {
   position: relative;
-  min-height: 100%;
+  height: 100%;
   overflow: hidden;
   padding: 64px 32px 24px;
   background: var(--cream);
@@ -276,6 +276,7 @@ button {
 
 .bottom-nav {
   position: absolute;
+  z-index: 10;
   left: 0;
   right: 0;
   bottom: 0;
@@ -467,6 +468,7 @@ button {
 
 .floating-add {
   position: absolute;
+  z-index: 11;
   right: 38px;
   bottom: 99px;
   display: grid;
@@ -492,6 +494,7 @@ button {
 
 .view-toggle {
   position: absolute;
+  z-index: 11;
   left: 22px;
   bottom: 111px;
   display: flex;
@@ -674,7 +677,7 @@ button {
 }
 
 .add-event-screen h1 {
-  margin: 25px 0 16px 7px;
+  margin: 7px 0 16px 7px;
   color: var(--ink);
   font-size: 37px;
   line-height: 1;
@@ -682,12 +685,12 @@ button {
 
 .event-form {
   display: grid;
-  gap: 23px;
+  gap: 18px;
 }
 
 .event-field {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .event-field span {
@@ -697,14 +700,14 @@ button {
 }
 
 .event-field .text-field {
-  min-height: 58px;
+  min-height: 55px;
 }
 
 .add-actions {
   position: absolute;
   left: 26px;
   right: 25px;
-  bottom: 107px;
+  bottom: 88px;
   display: flex;
   justify-content: space-between;
   gap: 18px;
