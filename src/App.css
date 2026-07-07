@@ -719,6 +719,738 @@ button {
   white-space: normal;
 }
 
+/* ============================================================
+   Interactions: hover + click animations
+   ============================================================ */
+.primary-button,
+.secondary-button,
+.pill-button,
+.nav-item,
+.floating-add,
+.chip,
+.icon-button,
+.small-action,
+.text-link,
+.filter-toggle,
+.view-toggle-inline {
+  transition:
+    transform 0.14s ease,
+    box-shadow 0.16s ease,
+    background-color 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease,
+    opacity 0.16s ease;
+}
+
+.primary-button:hover:not(:disabled),
+.secondary-button:hover:not(:disabled),
+.pill-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgb(34 26 15 / 26%);
+}
+
+.primary-button:active:not(:disabled),
+.secondary-button:active:not(:disabled),
+.pill-button:active:not(:disabled),
+.chip:active,
+.nav-item:active {
+  transform: translateY(0) scale(0.96);
+  box-shadow: var(--soft-shadow);
+}
+
+.primary-button:disabled,
+.secondary-button:disabled,
+.pill-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.nav-item:hover {
+  background: #eef3ec;
+}
+
+.nav-item.active:hover {
+  background: var(--green);
+}
+
+.floating-add:hover span {
+  transform: scale(1.08) rotate(90deg);
+  box-shadow: 0 8px 20px rgb(0 122 53 / 40%);
+}
+
+.floating-add span {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.floating-add:active span {
+  transform: scale(0.94);
+}
+
+.event-card {
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgb(34 26 15 / 22%);
+}
+
+.icon-button:hover {
+  color: var(--green);
+  transform: scale(1.12);
+}
+
+@keyframes fade-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* ============================================================
+   Auth / gate screens
+   ============================================================ */
+.auth-screen,
+.gate-screen {
+  justify-content: flex-start;
+  padding-top: 54px;
+}
+
+.auth-screen .form-copy,
+.gate-screen .form-copy {
+  margin-top: 22px;
+}
+
+.auth-form {
+  width: 100%;
+  display: grid;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.full-button {
+  width: 100%;
+  font-size: 24px;
+}
+
+.form-error {
+  margin: 2px 0 0;
+  color: #b4331f;
+  font-size: 15px;
+  text-align: center;
+}
+
+.form-note {
+  margin: 8px 0 0;
+  color: var(--green);
+  font-size: 15px;
+  text-align: center;
+}
+
+.gate-actions {
+  width: 100%;
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.text-link {
+  margin-top: 18px;
+  background: transparent;
+  color: var(--green);
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.splash-loading {
+  margin-top: 24px;
+  color: var(--ink);
+  font-size: 16px;
+  letter-spacing: 0.04em;
+}
+
+/* ============================================================
+   Events screen layout (flex column with scrolling list)
+   ============================================================ */
+.events-screen,
+.staff-screen {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-row {
+  grid-template-columns: auto 1fr auto;
+}
+
+.filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.filter-toggle svg {
+  width: 20px;
+  height: 20px;
+  color: var(--green);
+}
+
+.results-count {
+  justify-self: end;
+  color: #7c7365;
+  font-size: 14px;
+}
+
+.view-toggle-inline {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--green);
+  box-shadow: var(--soft-shadow);
+}
+
+.view-toggle-inline svg {
+  width: 22px;
+  height: 22px;
+}
+
+.event-list {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+  padding: 18px 3px 24px;
+}
+
+.empty-state {
+  margin: 40px 12px;
+  color: #7c7365;
+  text-align: center;
+  font-size: 16px;
+}
+
+.agenda-day {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.agenda-date {
+  margin: 4px 0 0;
+  color: var(--green);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+/* ============================================================
+   Filter panel
+   ============================================================ */
+.filter-panel {
+  display: grid;
+  gap: 14px;
+  margin: 12px 3px 4px;
+  padding: 16px;
+  border: 2px solid var(--green-bright);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--soft-shadow);
+  animation: fade-slide-in 0.18s ease;
+}
+
+.filter-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.filter-panel-head h2 {
+  margin: 0;
+  font-size: 20px;
+  color: var(--ink);
+}
+
+.filter-panel-head .text-link {
+  margin: 0;
+}
+
+.filter-field {
+  display: grid;
+  gap: 6px;
+}
+
+.filter-field > span {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.filter-field select,
+.filter-field input {
+  min-height: 44px;
+  border: 1.5px solid #c9d6c4;
+  border-radius: 12px;
+  padding: 0 12px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 15px;
+  outline: none;
+}
+
+.filter-field select:focus,
+.filter-field input:focus {
+  border-color: var(--green-bright);
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1.5px solid #c9d6c4;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.chip:hover {
+  border-color: var(--green-bright);
+}
+
+.chip.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+/* ============================================================
+   Event card additions
+   ============================================================ */
+.event-card-title {
+  align-items: center;
+}
+
+.event-card-title h3 {
+  flex: 1;
+}
+
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink);
+}
+
+.icon-button svg {
+  width: 22px;
+  height: 22px;
+}
+
+.priority-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #ffe3d6;
+  color: #b4331f;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.priority-badge svg {
+  width: 16px;
+  height: 16px;
+}
+
+.event-meta {
+  margin: 0;
+  color: #7c7365;
+  font-size: 14px;
+}
+
+.coverage-tag {
+  width: fit-content;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.coverage-uncovered,
+.coverage-needs_staff,
+.coverage-needs_volunteer {
+  background: #ffe3d6;
+  color: #b4331f;
+}
+
+.coverage-partially_covered {
+  background: #fff2cc;
+  color: #8a6d00;
+}
+
+.coverage-fully_covered {
+  background: #d8f5c8;
+  color: #2f6a1e;
+}
+
+.coverage-completed {
+  background: #dfeefb;
+  color: #1f5c8a;
+}
+
+.coverage-cancelled,
+.coverage-draft,
+.coverage-not_needed {
+  background: #eceae4;
+  color: #6c6357;
+}
+
+.claim-lines {
+  display: grid;
+  gap: 3px;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.claim-line.mine {
+  color: var(--green);
+  font-weight: 700;
+}
+
+.claim-open {
+  color: #b4331f;
+  font-weight: 700;
+}
+
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.pill-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.pill-button svg {
+  width: 17px;
+  height: 17px;
+}
+
+.pill-claim {
+  background: var(--green);
+  color: #fff;
+  box-shadow: var(--soft-shadow);
+}
+
+.pill-drop {
+  background: #fff;
+  border: 1.5px solid #d99a8c;
+  color: #b4331f;
+}
+
+.pill-notify {
+  background: #fff;
+  border: 1.5px solid var(--green-bright);
+  color: var(--green);
+}
+
+/* Card no longer relies on absolute small-action button */
+.event-card {
+  min-height: unset;
+}
+
+/* ============================================================
+   Floating add button icon
+   ============================================================ */
+.floating-add span svg {
+  width: 30px;
+  height: 30px;
+}
+
+.floating-add span {
+  font-size: 0;
+}
+
+/* ============================================================
+   Me screen
+   ============================================================ */
+.me-screen {
+  overflow-y: auto;
+}
+
+.section-heading {
+  margin: 28px 0 12px;
+  color: var(--ink);
+  font-size: 22px;
+}
+
+.profile-details dt {
+  font-size: 15px;
+}
+
+.profile-details dd {
+  font-size: 16px;
+}
+
+.my-events {
+  display: grid;
+  gap: 14px;
+}
+
+.my-event {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 2px solid var(--green-bright);
+  border-radius: 14px;
+  background: #fff8ee;
+  box-shadow: var(--soft-shadow);
+}
+
+.my-event.completed {
+  border-color: #bcd8ec;
+  background: #f4f9fd;
+}
+
+.my-event-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.my-event-head h3 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--ink);
+}
+
+.my-event-slot {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: #e7f2e3;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.my-event-meta {
+  margin: 0;
+  color: #7c7365;
+  font-size: 14px;
+}
+
+.my-event-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.completion-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 6px;
+  animation: fade-slide-in 0.18s ease;
+}
+
+.completion-form label {
+  display: grid;
+  gap: 5px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.textarea {
+  min-height: 78px;
+  padding: 10px 14px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.completed-summary {
+  display: grid;
+  gap: 4px;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.completed-flag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: #1f5c8a;
+  font-weight: 800;
+}
+
+.completed-flag svg {
+  width: 20px;
+  height: 20px;
+}
+
+.completed-notes {
+  color: #6c6357;
+}
+
+/* ============================================================
+   Staff screen
+   ============================================================ */
+.staff-screen {
+  overflow: hidden;
+}
+
+.staff-title {
+  margin: 12px 3px 6px;
+  color: var(--ink);
+  font-size: 30px;
+}
+
+.priority-callout {
+  margin: 0 3px 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #ffe3d6;
+}
+
+.priority-callout-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: #b4331f;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.priority-callout-head svg {
+  width: 18px;
+  height: 18px;
+}
+
+.staff-list {
+  gap: 20px;
+}
+
+.staff-event {
+  display: grid;
+  gap: 8px;
+}
+
+.staff-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 2px;
+}
+
+/* ============================================================
+   Event form additions
+   ============================================================ */
+.add-event-screen {
+  overflow-y: auto;
+}
+
+.event-field select,
+.event-field textarea {
+  font-family: inherit;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.checkbox-row {
+  display: flex;
+  gap: 22px;
+  margin: 4px 0;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.checkbox-field input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--green);
+}
+
+/* ============================================================
+   Toast
+   ============================================================ */
+.toast {
+  position: absolute;
+  z-index: 30;
+  left: 50%;
+  bottom: 104px;
+  transform: translateX(-50%);
+  max-width: 88%;
+  padding: 12px 18px;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 8px 22px rgb(0 0 0 / 26%);
+  animation: toast-in 0.2s ease;
+}
+
+.toast-ok {
+  background: var(--green);
+}
+
+.toast-error {
+  background: #b4331f;
+}
+
 @media (max-width: 520px) {
   .app-stage {
     padding: 0;
@@ -727,6 +1459,14 @@ button {
 
   .phone-shell {
     width: 100%;
+    height: 100dvh;
     box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
   }
 }

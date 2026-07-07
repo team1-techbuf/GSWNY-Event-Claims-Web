@@ -111,3 +111,82 @@ export function ListIcon({ className }: IconProps) {
     </svg>
   )
 }
+
+export function FilterIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M3 5h18M6 12h12M10 19h4"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="2.2"
+      />
+    </svg>
+  )
+}
+
+export function ClockIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2" />
+      <path d="M12 7v5l3.5 2" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
+    </svg>
+  )
+}
+
+export function BellIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M6 16V10a6 6 0 0 1 12 0v6l2 2H4l2-2Z"
+        fill="none"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="2"
+      />
+      <path d="M10 20a2 2 0 0 0 4 0" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
+    </svg>
+  )
+}
+
+export function CheckCircleIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2" />
+      <path d="m8 12 3 3 5-6" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+    </svg>
+  )
+}
+
+export function AlertIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 3 2 20h20L12 3Z" fill="none" stroke="currentColor" strokeLinejoin="round" strokeWidth="2" />
+      <path d="M12 9v5M12 17h.01" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
+    </svg>
+  )
+}
+
+export function EditIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M4 20h4L18 10l-4-4L4 16v4ZM15 5l4 4"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+      />
+    </svg>
+  )
+}
+
+export function PlusIcon({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="2.4" />
+    </svg>
+  )
+}

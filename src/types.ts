@@ -1,30 +1,7 @@
-export type Screen = 'splash' | 'login' | 'search' | 'events' | 'calendar' | 'add-event' | 'profile'
+// Bottom-nav tabs available in the authenticated app.
+export type Tab = 'events' | 'staff' | 'me'
 
-export interface EventRecord {
-  id: string
-  title: string
-  date: string
-  displayDate: string
-  time: string
-  volunteerText?: string
-  location: string
-  color: 'teal' | 'lavender'
-  dayColumn: number
-  startHour: number
-  durationHours: number
-}
-
-export interface Profile {
-  name: string
-  role: string
-  email: string
-  serviceUnit: string
-}
-
-export interface NewEventDraft {
-  location: string
-  date: string
-  time: string
-  description: string
-  roles: string
-}
+// Views layered on top of the tabs (full-screen forms).
+export type Overlay =
+  | { kind: 'none' }
+  | { kind: 'event-form'; eventId: string | null }

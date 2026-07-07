@@ -1,22 +1,25 @@
-import type { Screen } from '../types'
+import type { Tab } from '../types'
 import { CalendarLineIcon, PersonIcon, ShieldIcon } from './Icons'
 
 interface BottomNavProps {
-  active: 'staff' | 'events' | 'profile'
-  onNavigate: (screen: Screen) => void
+  active: Tab
+  canManage: boolean
+  onNavigate: (tab: Tab) => void
 }
 
-export function BottomNav({ active, onNavigate }: BottomNavProps) {
+export function BottomNav({ active, canManage, onNavigate }: BottomNavProps) {
   return (
     <nav className="bottom-nav" aria-label="Main navigation">
-      <button
-        className={active === 'staff' ? 'nav-item active' : 'nav-item'}
-        type="button"
-        onClick={() => onNavigate('events')}
-      >
-        <ShieldIcon />
-        <span>Staff</span>
-      </button>
+      {canManage && (
+        <button
+          className={active === 'staff' ? 'nav-item active' : 'nav-item'}
+          type="button"
+          onClick={() => onNavigate('staff')}
+        >
+          <ShieldIcon />
+          <span>Staff</span>
+        </button>
+      )}
       <button
         className={active === 'events' ? 'nav-item active' : 'nav-item'}
         type="button"
@@ -26,9 +29,9 @@ export function BottomNav({ active, onNavigate }: BottomNavProps) {
         <span>Events</span>
       </button>
       <button
-        className={active === 'profile' ? 'nav-item active' : 'nav-item'}
+        className={active === 'me' ? 'nav-item active' : 'nav-item'}
         type="button"
-        onClick={() => onNavigate('profile')}
+        onClick={() => onNavigate('me')}
       >
         <PersonIcon />
         <span>Me</span>

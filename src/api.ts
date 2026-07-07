@@ -52,6 +52,8 @@ export interface JoinedEvent {
     volunteerSlotAvailable: boolean
     coverageStatus: string
   }
+  daysUntilEvent: number | null
+  priority: boolean
 }
 
 export interface CreateEventPayload {
@@ -66,6 +68,16 @@ export interface CreateEventPayload {
   needsStaff: boolean
   needsVolunteer: boolean
   status: string
+}
+
+export type UpdateEventPayload = Partial<CreateEventPayload> & {
+  followupNotes?: string
+  leadCardsCount?: number | null
+}
+
+export interface CompleteEventPayload {
+  leadCardsCount?: number | null
+  followupNotes?: string
 }
 
 export class ApiRequestError extends Error {
@@ -105,6 +117,39 @@ export async function createEvent(
   return apiRequest(user, '/events', {
     method: 'POST',
     body: JSON.stringify(payload),
+  })
+}
+
+export async function updateEvent(
+  user: User,
+  eventId: string,
+  payload: UpdateEventPayload,
+): Promise<JoinedEvent> {
+  return apiRequest(user, `/events/${eventId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function completeEvent(
+  user: User,
+  eventId: string,
+  payload: CompleteEventPayload,
+): Promise<JoinedEvent> {
+  return apiRequest(user, `/events/${eventId}/complete`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function notifyVolunteers(
+  user: User,
+  eventId: string,
+  message: string,
+): Promise<{ notified: number }> {
+  return apiRequest(user, `/events/${eventId}/notify`, {
+    method: 'POST',
+    body: JSON.stringify({ message }),
   })
 }
 
