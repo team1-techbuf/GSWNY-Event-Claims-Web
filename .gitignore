@@ -30,3 +30,5 @@ functions/lib
 *.njsproj
 *.sln
 *.sw?
+
+graphify-out
