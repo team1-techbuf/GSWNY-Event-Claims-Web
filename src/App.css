@@ -967,8 +967,9 @@ button {
    Filter panel
    ============================================================ */
 .filter-panel {
-  display: grid;
-  gap: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   margin: 12px 3px 4px;
   padding: 16px;
   border: 2px solid var(--green-bright);
@@ -976,6 +977,25 @@ button {
   background: #fff;
   box-shadow: var(--soft-shadow);
   animation: fade-slide-in 0.18s ease;
+  /* Never let the panel run past the bottom of the phone screen. It shrinks to
+     the space left below the filter row; the head and "Show results" button
+     stay pinned while the fields scroll. */
+  min-height: 0;
+  overflow: hidden;
+}
+
+.filter-panel-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  gap: 14px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-right: 2px;
+}
+
+.filter-panel > .full-button {
+  flex: 0 0 auto;
 }
 
 .filter-panel-head {
