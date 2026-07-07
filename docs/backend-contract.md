@@ -8,7 +8,7 @@ All protected endpoints require:
 Authorization: Bearer <Firebase ID token>
 ```
 
-The API verifies the Firebase token, normalizes the email, loads the matching row from `Users`, and requires `active` to be `TRUE`. Unauthenticated requests return `401`. Authenticated users missing from `Users` or inactive users return `403`.
+The API verifies the Firebase token, requires a verified email, normalizes the email, loads the matching row from `Users`, and requires `active` to be `TRUE`. Unauthenticated requests return `401`. Authenticated users with unverified email, missing from `Users`, or inactive users return `403`.
 
 ## GET /health
 
@@ -22,6 +22,23 @@ Response:
   "service": "gswny-event-claims-api"
 }
 ```
+
+## POST /signups
+
+Requires a valid Firebase ID token, but does not require an active `Users` row.
+Creates an inactive `Users` row for the signed-in Firebase email if one does not
+already exist.
+
+Request:
+
+```json
+{
+  "fullName": "Jane Smith"
+}
+```
+
+Created rows use the existing `Users` sheet structure with `role` set to
+`volunteer` and `active` set to `FALSE`.
 
 ## GET /me
 

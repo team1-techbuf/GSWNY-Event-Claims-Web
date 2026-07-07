@@ -1,15 +1,17 @@
 import cors from "cors";
 import express, {NextFunction, Request, Response} from "express";
-import {requireAppUser} from "./auth";
+import {requireAppUser, requireFirebaseUser} from "./auth";
 import {eventsRouter} from "./routes/events";
 import {meRouter} from "./routes/me";
 import {schoolsRouter} from "./routes/schools";
+import {signupsRouter} from "./routes/signups";
 import {SheetsService} from "./sheets";
 import {ApiError, splitCsv} from "./utils";
 
 export function createApp(): express.Express {
   const app = express();
   const sheets = new SheetsService();
+  const firebaseUserRoute = requireFirebaseUser();
   const protectedRoute = requireAppUser(sheets);
   const router = express.Router();
 
@@ -26,6 +28,7 @@ export function createApp(): express.Express {
     });
   });
 
+  router.use("/signups", firebaseUserRoute, signupsRouter(sheets));
   router.use("/me", protectedRoute, meRouter());
   router.use("/schools", protectedRoute, schoolsRouter(sheets));
   router.use("/events", protectedRoute, eventsRouter(sheets));

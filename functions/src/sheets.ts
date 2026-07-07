@@ -7,6 +7,7 @@ import {
   RowWithNumber,
   School,
   SlotType,
+  UserSignup,
   UserRole,
 } from "./types";
 import {
@@ -102,6 +103,33 @@ export class SheetsService {
     const normalizedEmail = normalizeEmail(email);
     const users = await this.getUsers();
     return users.find((user) => user.email === normalizedEmail) ?? null;
+  }
+
+  async ensureSignupUser(signup: UserSignup): Promise<RowWithNumber<AppUser>> {
+    const email = normalizeEmail(signup.email);
+    const existingUser = await this.findUserByEmail(email);
+    if (existingUser) {
+      return existingUser;
+    }
+
+    const appUser: AppUser = {
+      email,
+      phone: "",
+      fullName: signup.fullName.trim(),
+      role: "volunteer",
+      active: false,
+      county: "",
+      suNumber: "",
+      notes: "Created from web signup",
+    };
+
+    await this.appendRow("Users", USER_HEADERS, userToSheetRow(appUser));
+    const createdUser = await this.findUserByEmail(email);
+    if (!createdUser) {
+      throw new Error("Unable to load newly created user row.");
+    }
+
+    return createdUser;
   }
 
   async getSchools(): Promise<RowWithNumber<School>[]> {
@@ -375,5 +403,18 @@ function claimToSheetRow(claim: ClaimRecord): SheetObject {
     cancelled_by: normalizeEmail(claim.cancelledBy),
     cancel_reason: claim.cancelReason,
     cancellation_reason: claim.cancelReason,
+  };
+}
+
+function userToSheetRow(user: AppUser): SheetObject {
+  return {
+    email: normalizeEmail(user.email),
+    phone: user.phone,
+    full_name: user.fullName,
+    role: user.role,
+    active: toSheetBoolean(user.active),
+    county: user.county,
+    su_number: user.suNumber,
+    notes: user.notes,
   };
 }

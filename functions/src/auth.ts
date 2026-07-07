@@ -27,6 +27,9 @@ export function requireAppUser(sheets: SheetsService) {
       if (!email) {
         throw new ApiError(401, "Firebase token does not include an email.");
       }
+      if (!decoded.email_verified) {
+        throw new ApiError(403, "Please verify your email before using the app.");
+      }
 
       const appUser = await sheets.findUserByEmail(email);
       if (!appUser || !appUser.active) {
@@ -35,6 +38,28 @@ export function requireAppUser(sheets: SheetsService) {
 
       req.firebaseUser = decoded;
       req.appUser = appUser;
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
+export function requireFirebaseUser() {
+  return async (
+    req: AuthenticatedRequest,
+    _res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    try {
+      const token = parseBearerToken(req);
+      const decoded = await getAuth().verifyIdToken(token);
+      const email = normalizeEmail(decoded.email);
+      if (!email) {
+        throw new ApiError(401, "Firebase token does not include an email.");
+      }
+
+      req.firebaseUser = decoded;
       next();
     } catch (error) {
       next(error);

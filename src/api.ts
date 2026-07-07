@@ -83,6 +83,13 @@ export async function getMe(user: User): Promise<AppUser> {
   return apiRequest(user, '/me')
 }
 
+export async function registerSignup(user: User, fullName: string): Promise<AppUser> {
+  return apiRequest(user, '/signups', {
+    method: 'POST',
+    body: JSON.stringify({ fullName }),
+  })
+}
+
 export async function getSchools(user: User): Promise<School[]> {
   return apiRequest(user, '/schools')
 }

@@ -8,6 +8,7 @@ Working vertical slice for WNY Girl Scouts event slot claims. Staff create schoo
 - Firebase Auth email/password identity in the browser.
 - Firebase Functions TypeScript API exported as `api`.
 - Express routes verify Firebase ID tokens with `firebase-admin`.
+- New signups create inactive rows in the `Users` Google Sheet tab.
 - Approved app users and roles are read from the `Users` Google Sheet tab.
 - Events are read from `Events`, joined with `Schools` and active `Claims`.
 - Claims append rows to `Claims`; cancellation marks claim rows as `cancelled`.
@@ -32,7 +33,9 @@ Working vertical slice for WNY Girl Scouts event slot claims. Staff create schoo
    export ALLOWED_ORIGINS="http://localhost:5173"
    ```
 
-4. Enable Firebase Auth email/password in the Firebase project.
+4. Enable Firebase Auth email/password in the Firebase project. Email
+   verification is sent by the app after signup; it does not require a separate
+   Firebase provider.
 
 5. Share the Google Sheet with the service account email.
 

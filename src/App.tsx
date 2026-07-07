@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  sendEmailVerification,
   signInWithEmailAndPassword,
   signOut,
 } from 'firebase/auth'
@@ -16,6 +17,7 @@ import {
   getEvents,
   getMe,
   getSchools,
+  registerSignup,
 } from './api'
 import type { AppUser, CreateEventPayload, JoinedEvent, School, SlotType } from './api'
 import { auth } from './firebase'
@@ -40,6 +42,7 @@ function App() {
   const [schools, setSchools] = useState<School[]>([])
   const [events, setEvents] = useState<JoinedEvent[]>([])
   const [email, setEmail] = useState('')
+  const [fullName, setFullName] = useState('')
   const [password, setPassword] = useState('')
   const [authLoading, setAuthLoading] = useState(true)
   const [dataLoading, setDataLoading] = useState(false)
@@ -89,7 +92,7 @@ function App() {
           return
         }
         if (error instanceof ApiRequestError && error.status === 403) {
-          setMessage('You are signed in, but your account has not been approved in the Users sheet.')
+          setMessage(error.message)
         } else {
           setMessage(error instanceof Error ? error.message : 'Unable to load app data.')
         }
@@ -118,7 +121,13 @@ function App() {
     setMessage('')
     try {
       if (mode === 'sign-up') {
-        await createUserWithEmailAndPassword(auth, email, password)
+        const credential = await createUserWithEmailAndPassword(auth, email, password)
+        await sendEmailVerification(credential.user)
+        await registerSignup(credential.user, fullName)
+        setFullName('')
+        setMessage(
+          'Account created. Please verify your email, then wait for approval in the Users sheet.',
+        )
       } else {
         await signInWithEmailAndPassword(auth, email, password)
       }
@@ -131,8 +140,14 @@ function App() {
   async function handleSignUp() {
     setMessage('')
     try {
-      await createUserWithEmailAndPassword(auth, email, password)
+      const credential = await createUserWithEmailAndPassword(auth, email, password)
+      await sendEmailVerification(credential.user)
+      await registerSignup(credential.user, fullName)
+      setFullName('')
       setPassword('')
+      setMessage(
+        'Account created. Please verify your email, then wait for approval in the Users sheet.',
+      )
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Sign up failed.')
     }
@@ -220,6 +235,15 @@ function App() {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 required
+              />
+            </label>
+            <label>
+              Full name for sign up
+              <input
+                type="text"
+                value={fullName}
+                onChange={(event) => setFullName(event.target.value)}
+                maxLength={120}
               />
             </label>
             <label>

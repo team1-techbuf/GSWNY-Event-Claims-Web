@@ -25,6 +25,11 @@ export interface AppUser {
   notes: string;
 }
 
+export interface UserSignup {
+  email: string;
+  fullName: string;
+}
+
 export interface School {
   schoolId: string;
   ces: string;
