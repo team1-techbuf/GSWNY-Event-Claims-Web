@@ -107,4 +107,11 @@ export interface JoinedEvent {
     volunteerSlotAvailable: boolean;
     coverageStatus: CoverageStatus;
   };
+  /** Days from today until the event date, or null if the date is unparseable. */
+  daysUntilEvent: number | null;
+  /**
+   * True when the event is open, starts within the next seven days, and still
+   * has at least one needed slot unclaimed. Surfaces urgent coverage gaps.
+   */
+  priority: boolean;
 }

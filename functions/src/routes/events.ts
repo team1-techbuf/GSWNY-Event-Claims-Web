@@ -7,8 +7,13 @@ import {
   getActiveClaimForSlot,
 } from "../domain";
 import {joinEvent, joinEvents} from "../eventMapper";
+import {
+  sendClaimConfirmation,
+  sendDropConfirmation,
+  sendVolunteersNeeded,
+} from "../mailer";
 import {SheetsService} from "../sheets";
-import {EventRecord, RowWithNumber, SlotType} from "../types";
+import {ClaimRecord, EventRecord, RowWithNumber, SlotType} from "../types";
 import {ApiError, generateId, normalizeEmail} from "../utils";
 
 const slotTypeSchema = z.enum(["staff", "volunteer"]);
@@ -42,6 +47,15 @@ const updateEventSchema = z.object({
   status: eventStatusSchema.optional(),
   followupNotes: z.string().trim().optional(),
   leadCardsCount: z.union([z.number(), z.string(), z.null()]).optional(),
+});
+
+const completeEventSchema = z.object({
+  leadCardsCount: z.union([z.number(), z.string(), z.null()]).optional(),
+  followupNotes: z.string().trim().max(2000).optional(),
+});
+
+const notifySchema = z.object({
+  message: z.string().trim().max(2000).optional().default(""),
 });
 
 export function eventsRouter(sheets: SheetsService): Router {
@@ -177,7 +191,7 @@ export function eventsRouter(sheets: SheetsService): Router {
       }
 
       const now = new Date().toISOString();
-      const claim = {
+      const claim: ClaimRecord = {
         claimId: generateId("CLM"),
         eventId: event.eventId,
         slotType,
@@ -191,8 +205,22 @@ export function eventsRouter(sheets: SheetsService): Router {
       };
 
       await sheets.appendClaim(claim);
-      const activeClaims = [...claims.filter((item) => item.claimStatus === "active"), claim];
-      res.status(201).json(joinEvent(event, schools, activeClaims));
+
+      // Concurrency safety: Google Sheets cannot enforce a unique active claim
+      // per event+slot, so two users can append at nearly the same moment.
+      // Re-read after writing and let the earliest claim win; a loser rolls
+      // back its own row and gets a 409. See docs/backend-contract.md.
+      const winner = await reconcileClaim(sheets, event.eventId, slotType, claim);
+      if (winner.claimId !== claim.claimId) {
+        throw new ApiError(409, "This slot was just claimed by someone else.");
+      }
+
+      const latestClaims = await sheets.getClaims();
+      const activeClaims = latestClaims.filter((item) => item.claimStatus === "active");
+      const joined = joinEvent(event, schools, activeClaims);
+
+      await sendClaimConfirmation(user.email, user.fullName, slotType, joined);
+      res.status(201).json(joined);
     } catch (error) {
       next(error);
     }
@@ -234,13 +262,150 @@ export function eventsRouter(sheets: SheetsService): Router {
       const activeClaims = claims
         .filter((item) => item.claimId !== claim.claimId)
         .filter((item) => item.claimStatus === "active");
-      res.json(joinEvent(event, schools, activeClaims));
+      const joined = joinEvent(event, schools, activeClaims);
+
+      // Notify the member whose claim was dropped (may differ from actor when
+      // an admin cancels on their behalf).
+      await sendDropConfirmation(
+        normalizeEmail(claim.userEmail),
+        claim.userName,
+        slotType,
+        joined,
+      );
+      res.json(joined);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Mark an event completed and record post-event details. The member holding
+  // an active claim on the event can do this from their "Me" tab; staff and
+  // admins may also complete any event.
+  router.post("/:eventId/complete", async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const user = currentUser(req);
+      const body = parseBody(completeEventSchema, req.body);
+      const [events, schools, claims] = await Promise.all([
+        sheets.getEvents(),
+        sheets.getSchools(),
+        sheets.getClaims(),
+      ]);
+      const event = findEvent(events, String(req.params.eventId));
+
+      const holdsClaim = claims.some((item) =>
+        item.eventId === event.eventId &&
+        item.claimStatus === "active" &&
+        normalizeEmail(item.userEmail) === user.email,
+      );
+      if (!holdsClaim && !canManageEvents(user.role)) {
+        throw new ApiError(403, "Only a claim holder or staff can complete this event.");
+      }
+      if (event.status === "cancelled") {
+        throw new ApiError(400, "A cancelled event cannot be completed.");
+      }
+
+      const leadCardsCount = body.leadCardsCount === undefined ?
+        event.leadCardsCount :
+        normalizeLeadCardsCount(body.leadCardsCount);
+      const updatedEvent: RowWithNumber<EventRecord> = {
+        ...event,
+        status: "completed",
+        leadCardsCount,
+        followupNotes: body.followupNotes ?? event.followupNotes,
+        updatedAt: new Date().toISOString(),
+      };
+
+      await sheets.updateEvent(updatedEvent);
+      const activeClaims = claims.filter((item) => item.claimStatus === "active");
+      res.json(joinEvent(updatedEvent, schools, activeClaims));
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Staff/admin broadcast: email active volunteers that an upcoming event still
+  // needs coverage.
+  router.post("/:eventId/notify", async (req: AuthenticatedRequest, res, next) => {
+    try {
+      const user = currentUser(req);
+      if (!canManageEvents(user.role)) {
+        throw new ApiError(403, "Only staff and admins can send notifications.");
+      }
+
+      const body = parseBody(notifySchema, req.body);
+      const [events, schools, claims, users] = await Promise.all([
+        sheets.getEvents(),
+        sheets.getSchools(),
+        sheets.getClaims(),
+        sheets.getUsers(),
+      ]);
+      const event = findEvent(events, String(req.params.eventId));
+      const activeClaims = claims.filter((item) => item.claimStatus === "active");
+      const joined = joinEvent(event, schools, activeClaims);
+
+      const recipients = users
+        .filter((candidate) => candidate.active && candidate.role === "volunteer")
+        .map((candidate) => normalizeEmail(candidate.email))
+        .filter(Boolean);
+
+      if (recipients.length === 0) {
+        throw new ApiError(400, "There are no active volunteers to notify.");
+      }
+
+      await sendVolunteersNeeded(recipients, joined, body.message);
+      res.json({notified: recipients.length});
     } catch (error) {
       next(error);
     }
   });
 
   return router;
+}
+
+// Resolve concurrent claims for the same event+slot deterministically. The
+// winner is the earliest active claim (by claimedAt, then claimId). Any other
+// active claim by the same append is rolled back to `cancelled` so exactly one
+// survives.
+async function reconcileClaim(
+  sheets: SheetsService,
+  eventId: string,
+  slotType: SlotType,
+  ownClaim: ClaimRecord,
+): Promise<ClaimRecord> {
+  const claims = await sheets.getClaims();
+  const active = claims.filter((item) =>
+    item.eventId === eventId &&
+    item.slotType === slotType &&
+    item.claimStatus === "active",
+  );
+
+  if (active.length <= 1) {
+    return ownClaim;
+  }
+
+  const winner = [...active].sort((a, b) => {
+    if (a.claimedAt !== b.claimedAt) {
+      return a.claimedAt < b.claimedAt ? -1 : 1;
+    }
+    return a.claimId < b.claimId ? -1 : 1;
+  })[0];
+
+  // Roll back every active claim that is not the winner but was created by this
+  // request, so the loser does not leave a lingering active row.
+  const loser = claims.find((item) =>
+    item.claimId === ownClaim.claimId && item.claimStatus === "active",
+  );
+  if (loser && winner.claimId !== ownClaim.claimId) {
+    await sheets.updateClaim({
+      ...loser,
+      claimStatus: "cancelled",
+      canceledAt: new Date().toISOString(),
+      cancelledBy: normalizeEmail(ownClaim.userEmail),
+      cancelReason: "Auto-cancelled: slot already claimed (concurrency).",
+    });
+  }
+
+  return winner;
 }
 
 function parseBody<T>(schema: z.ZodType<T>, value: unknown): T {

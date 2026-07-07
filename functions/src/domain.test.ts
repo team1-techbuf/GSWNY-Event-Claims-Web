@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {calculateAvailability, canClaimSlot, getActiveClaimForSlot} from "./domain";
+import {
+  calculateAvailability,
+  canClaimSlot,
+  daysUntil,
+  getActiveClaimForSlot,
+  isPriorityEvent,
+} from "./domain";
 import {ClaimRecord, EventRecord} from "./types";
 import {normalizeBoolean} from "./utils";
 
@@ -69,6 +75,43 @@ test("calculateAvailability reports terminal statuses as unavailable", () => {
     volunteerSlotAvailable: false,
     coverageStatus: "cancelled",
   });
+});
+
+test("daysUntil computes whole-day differences in UTC", () => {
+  const now = new Date("2026-07-07T15:00:00.000Z");
+  assert.equal(daysUntil("2026-07-07", now), 0);
+  assert.equal(daysUntil("2026-07-10", now), 3);
+  assert.equal(daysUntil("2026-07-06", now), -1);
+  assert.equal(daysUntil("not-a-date", now), null);
+});
+
+test("isPriorityEvent flags open, soon, unclaimed events", () => {
+  const now = new Date("2026-07-07T12:00:00.000Z");
+  const soon = {status: "open" as const, eventDate: "2026-07-10"};
+  const openSlot = {staffSlotAvailable: true, volunteerSlotAvailable: false};
+
+  assert.deepEqual(isPriorityEvent(soon, openSlot, now), {
+    priority: true,
+    daysUntilEvent: 3,
+  });
+
+  // Fully covered soon event is not priority.
+  assert.equal(
+    isPriorityEvent(soon, {staffSlotAvailable: false, volunteerSlotAvailable: false}, now).priority,
+    false,
+  );
+
+  // Open slot but outside the 7-day window is not priority.
+  assert.equal(
+    isPriorityEvent({status: "open", eventDate: "2026-07-20"}, openSlot, now).priority,
+    false,
+  );
+
+  // Draft event is never priority.
+  assert.equal(
+    isPriorityEvent({status: "draft", eventDate: "2026-07-08"}, openSlot, now).priority,
+    false,
+  );
 });
 
 test("getActiveClaimForSlot ignores cancelled claims", () => {
