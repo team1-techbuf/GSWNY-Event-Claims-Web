@@ -8,6 +8,7 @@ const EVENT_TYPES = ['Open House', 'Recruitment Night', 'Info Table', 'Other']
 interface EventFormScreenProps {
   schools: School[]
   initial: JoinedEvent | null
+  initialDate?: string
   busy: boolean
   onSubmit: (payload: CreateEventPayload) => void
   onCancel: () => void
@@ -43,10 +44,17 @@ function toDisplayTime(input: string): string {
   return `${hour}:${minuteStr ?? '00'} ${meridiem}`
 }
 
-export function EventFormScreen({ schools, initial, busy, onSubmit, onCancel }: EventFormScreenProps) {
+export function EventFormScreen({
+  schools,
+  initial,
+  initialDate,
+  busy,
+  onSubmit,
+  onCancel,
+}: EventFormScreenProps) {
   const isEdit = initial !== null
   const [schoolId, setSchoolId] = useState(initial?.school?.schoolId ?? schools[0]?.schoolId ?? '')
-  const [eventDate, setEventDate] = useState(initial?.eventDate ?? '')
+  const [eventDate, setEventDate] = useState(initial?.eventDate ?? initialDate ?? '')
   const [startTime, setStartTime] = useState(toInputTime(initial?.startTime ?? ''))
   const [endTime, setEndTime] = useState(toInputTime(initial?.endTime ?? ''))
   const [timeNotes, setTimeNotes] = useState(initial?.timeNotes ?? '')

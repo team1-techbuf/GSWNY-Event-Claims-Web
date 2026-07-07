@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import type { JoinedEvent, SlotType, UserRole } from '../api'
 import { AppLogo } from '../components/AppLogo'
+import { CalendarView } from '../components/CalendarView'
 import { EventCard } from '../components/EventCard'
 import { FilterPanel } from '../components/FilterPanel'
 import { MapView } from '../components/MapView'
@@ -9,7 +10,6 @@ import {
   activeFilterCount,
   emptyFilters,
   filterEvents,
-  formatDisplayDate,
   sortEvents,
   type EventFilters,
 } from '../lib/events'
@@ -23,8 +23,11 @@ interface EventsScreenProps {
   onClaim: (eventId: string, slot: SlotType) => void
   onDrop: (eventId: string, slot: SlotType) => void
   onAddEvent: () => void
+  onAddEventOnDate: (dateISO: string) => void
   onEditEvent: (eventId: string) => void
 }
+
+type View = 'list' | 'calendar' | 'map'
 
 export function EventsScreen({
   events,
@@ -35,27 +38,18 @@ export function EventsScreen({
   onClaim,
   onDrop,
   onAddEvent,
+  onAddEventOnDate,
   onEditEvent,
 }: EventsScreenProps) {
   const [filters, setFilters] = useState<EventFilters>(emptyFilters)
   const [showFilters, setShowFilters] = useState(false)
-  const [view, setView] = useState<'list' | 'agenda' | 'map'>('list')
+  const [view, setView] = useState<View>('list')
 
   const visible = useMemo(
     () => sortEvents(filterEvents(events, filters)),
     [events, filters],
   )
   const count = activeFilterCount(filters)
-
-  const grouped = useMemo(() => {
-    const map = new Map<string, JoinedEvent[]>()
-    for (const event of visible) {
-      const list = map.get(event.eventDate) ?? []
-      list.push(event)
-      map.set(event.eventDate, list)
-    }
-    return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]))
-  }, [visible])
 
   return (
     <section className="screen with-bottom-nav events-screen">
@@ -81,10 +75,10 @@ export function EventsScreen({
         </button>
         <button
           type="button"
-          className={view === 'agenda' ? 'view-seg active' : 'view-seg'}
-          onClick={() => setView('agenda')}
+          className={view === 'calendar' ? 'view-seg active' : 'view-seg'}
+          onClick={() => setView('calendar')}
         >
-          <CalendarLineIcon /> Agenda
+          <CalendarLineIcon /> Calendar
         </button>
         <button
           type="button"
@@ -108,9 +102,21 @@ export function EventsScreen({
           onClaim={onClaim}
           onDrop={onDrop}
         />
+      ) : view === 'calendar' ? (
+        <CalendarView
+          events={visible}
+          role={role}
+          email={email}
+          busy={busy}
+          canManage={canManage}
+          onClaim={onClaim}
+          onDrop={onDrop}
+          onEditEvent={onEditEvent}
+          onAddEventOnDate={onAddEventOnDate}
+        />
       ) : visible.length === 0 ? (
         <p className="empty-state">No events match your filters.</p>
-      ) : view === 'list' ? (
+      ) : (
         <div className="event-list">
           {visible.map((event) => (
             <EventCard
@@ -123,26 +129,6 @@ export function EventsScreen({
               onDrop={(slot) => onDrop(event.eventId, slot)}
               onEdit={canManage ? () => onEditEvent(event.eventId) : undefined}
             />
-          ))}
-        </div>
-      ) : (
-        <div className="event-list agenda">
-          {grouped.map(([date, dayEvents]) => (
-            <div key={date} className="agenda-day">
-              <h3 className="agenda-date">{formatDisplayDate(date)}</h3>
-              {dayEvents.map((event) => (
-                <EventCard
-                  key={event.eventId}
-                  event={event}
-                  role={role}
-                  email={email}
-                  busy={busy}
-                  onClaim={(slot) => onClaim(event.eventId, slot)}
-                  onDrop={(slot) => onDrop(event.eventId, slot)}
-                  onEdit={canManage ? () => onEditEvent(event.eventId) : undefined}
-                />
-              ))}
-            </div>
           ))}
         </div>
       )}

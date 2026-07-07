@@ -194,6 +194,7 @@ function MainApp({ firebaseUser, appUser }: MainAppProps) {
         <EventFormScreen
           schools={schools}
           initial={initial}
+          initialDate={overlay.prefillDate}
           busy={busy}
           onSubmit={handleSubmitEvent}
           onCancel={() => setOverlay({ kind: 'none' })}
@@ -217,6 +218,9 @@ function MainApp({ firebaseUser, appUser }: MainAppProps) {
           onClaim={handleClaim}
           onDrop={handleDrop}
           onAddEvent={() => setOverlay({ kind: 'event-form', eventId: null })}
+          onAddEventOnDate={(dateISO) =>
+            setOverlay({ kind: 'event-form', eventId: null, prefillDate: dateISO })
+          }
           onEditEvent={(eventId) => setOverlay({ kind: 'event-form', eventId })}
         />
       ) : tab === 'staff' && canManage ? (

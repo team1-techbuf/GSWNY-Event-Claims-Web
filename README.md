@@ -15,8 +15,9 @@ the data.
 
 - **Sign in with an email and password.** New people can sign up; they get access
   once they verify their email (and, for the first time, are approved).
-- **Browse events** in a list, an agenda by day, or on a **map**. The map pins each
-  school and colors it by what it still needs (staff, volunteer, both, or covered).
+- **Browse events** in a list, on a **calendar** (month or week view, like Google
+  Calendar), or on a **map**. The map pins each school and colors it by what it
+  still needs (staff, volunteer, both, or covered).
 - **Filter events** by status, zip code, service unit, date, and time of day
   (e.g. 8am–12pm).
 - **Claim or drop a slot** with one tap. A confirmation email is sent automatically.
