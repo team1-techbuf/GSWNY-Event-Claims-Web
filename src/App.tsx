@@ -122,8 +122,8 @@ function App() {
     try {
       if (mode === 'sign-up') {
         const credential = await createUserWithEmailAndPassword(auth, email, password)
-        await sendEmailVerification(credential.user)
         await registerSignup(credential.user, fullName)
+        await sendEmailVerification(credential.user)
         setFullName('')
         setMessage(
           'Account created. Please verify your email, then wait for approval in the Users sheet.',
@@ -141,8 +141,8 @@ function App() {
     setMessage('')
     try {
       const credential = await createUserWithEmailAndPassword(auth, email, password)
-      await sendEmailVerification(credential.user)
       await registerSignup(credential.user, fullName)
+      await sendEmailVerification(credential.user)
       setFullName('')
       setPassword('')
       setMessage(
