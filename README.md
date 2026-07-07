@@ -1,17 +1,30 @@
 # GSWNY Event Claims Web
 
-Working vertical slice for WNY Girl Scouts event slot claims. Staff create school events and staff or volunteers sign in with Firebase Auth to claim available event slots. Google Sheets is the v1 data store.
+Mobile web app for WNY Girl Scouts event slot claims. Staff create and manage school events; staff and volunteers sign in with Firebase Auth (email + password) to claim available event slots. Google Sheets is the v1 data store.
+
+## Features
+
+- Email + password auth with signup, email verification, and a pending-approval gate.
+- Role-gated UI: volunteers can only claim; staff/admin can also add/edit/publish events. The Staff tab is hidden from volunteers.
+- Filterable event list by status, zip code, service unit, date, and time block (e.g. 8am–12pm), with list and agenda views.
+- Priority badges for open events within 7 days that still need coverage.
+- Claim and drop slots with confirmation emails to the affected member.
+- Volunteers mark their claimed events completed from the "Me" tab and record lead-card counts and notes.
+- Staff broadcast a "volunteers needed" email for uncovered upcoming events.
+- Claim concurrency safety: concurrent double-claims are reconciled so exactly one active claim survives per slot.
+- Hover and click animations throughout.
 
 ## Architecture
 
 - Vite React TypeScript frontend in `src`.
-- Firebase Auth email/password identity in the browser.
+- Firebase Auth email/password identity in the browser; an `AuthProvider` context resolves the approved app user and role.
 - Firebase Functions TypeScript API exported as `api`.
 - Express routes verify Firebase ID tokens with `firebase-admin`.
-- New signups create inactive rows in the `Users` Google Sheet tab.
+- New signups create inactive rows in the `Users` Google Sheet tab; verified web signups auto-activate.
 - Approved app users and roles are read from the `Users` Google Sheet tab.
-- Events are read from `Events`, joined with `Schools` and active `Claims`.
-- Claims append rows to `Claims`; cancellation marks claim rows as `cancelled`.
+- Events are read from `Events`, joined with `Schools` and active `Claims`, and carry computed availability + priority.
+- Claims append rows to `Claims`; cancellation marks claim rows as `cancelled`; concurrent claims are reconciled after append.
+- Notifications are sent over SMTP (or logged when SMTP is unconfigured). See [docs/environment.md](docs/environment.md).
 - Firebase Hosting serves the Vite `dist` directory and rewrites `/api/**` to the API function.
 
 ## Local Setup

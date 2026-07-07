@@ -109,12 +109,16 @@ Returns events joined with `Schools` and active `Claims`:
       "staffSlotAvailable": true,
       "volunteerSlotAvailable": true,
       "coverageStatus": "uncovered"
-    }
+    },
+    "daysUntilEvent": 3,
+    "priority": true
   }
 ]
 ```
 
 Coverage status values are `uncovered`, `needs_staff`, `needs_volunteer`, `partially_covered`, `fully_covered`, `not_needed`, `cancelled`, `completed`, and `draft`.
+
+`daysUntilEvent` is the whole-day count from today to the event date (negative for past events, `null` if unparseable). `priority` is `true` when the event is `open`, starts within the next 7 days (today included), and still has at least one needed slot unclaimed. The frontend surfaces priority events first with a badge.
 
 ## POST /events
 
@@ -187,6 +191,15 @@ Rules:
 - The API rereads active claims before append.
 - Existing active claim for the same `event_id + slot_type` returns `409`.
 - Returns `201` with the updated joined event.
+- Sends a claim-confirmation email to the claiming user's address (best-effort).
+
+### Concurrency
+
+Because Google Sheets cannot enforce a unique active claim per `event_id + slot_type`,
+two users can append at nearly the same moment. After appending, the API re-reads
+the `Claims` tab and picks a deterministic winner (earliest `claimed_at`, then
+`claim_id`). A losing append rolls its own row back to `cancelled` and the request
+returns `409`. Exactly one active claim survives per slot.
 
 ## DELETE /events/:eventId/claims/:slotType
 
@@ -202,3 +215,47 @@ Rules:
 - Non-admin users cannot cancel another user's claim.
 - The claim row is updated to `claim_status = cancelled`; it is not deleted.
 - Returns the updated joined event.
+- Sends a drop-confirmation email to the affected member (best-effort).
+
+## POST /events/:eventId/complete
+
+Protected.
+
+Marks an event completed and records post-event details from the "Me" tab.
+
+Request:
+
+```json
+{
+  "leadCardsCount": 12,
+  "followupNotes": "Great turnout, follow up with two families."
+}
+```
+
+Rules:
+
+- The caller must hold an active claim on the event, or be `staff`/`admin`.
+- A `cancelled` event cannot be completed.
+- `leadCardsCount` must be blank/null or a number >= 0.
+- Sets `status = completed` and updates `lead_cards_count` / `followup_notes`.
+- Returns the updated joined event.
+
+## POST /events/:eventId/notify
+
+Protected. `staff` and `admin` only.
+
+Emails all active volunteers that an upcoming event still needs coverage.
+
+Request:
+
+```json
+{
+  "message": "We really need help at this open house!"
+}
+```
+
+Rules:
+
+- `message` is optional.
+- Returns `{ "notified": <number of volunteers emailed> }`.
+- Returns `400` if there are no active volunteers.

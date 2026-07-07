@@ -37,9 +37,25 @@ GOOGLE_SERVICE_ACCOUNT_FILE=
 GOOGLE_SERVICE_ACCOUNT_JSON=
 GOOGLE_SERVICE_ACCOUNT_KEY=
 ALLOWED_ORIGINS=
+SMTP_HOST=
+SMTP_PORT=
+SMTP_SECURE=
+SMTP_USER=
+SMTP_PASS=
+MAIL_FROM=
 ```
 
 `SHEET_ID` is required.
+
+## Email Notifications
+
+Claim/drop confirmations and the staff "volunteers needed" broadcast are sent
+through SMTP. Set `SMTP_HOST`, `SMTP_USER`, and `SMTP_PASS` (plus optional
+`SMTP_PORT`, `SMTP_SECURE`, and `MAIL_FROM`) to enable real delivery. When these
+are unset, messages are logged to the Functions console instead of sent, so the
+app works end to end in local development without an SMTP provider. Email
+delivery is best-effort: a mail failure never blocks the claim/drop/complete
+action.
 
 Do not add `FIREBASE_PROJECT_ID` or `GCLOUD_PROJECT` to `functions/.env`.
 Firebase reserves those keys and the Functions emulator will reject the env
