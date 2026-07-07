@@ -1357,6 +1357,8 @@ button {
    Staff screen
    ============================================================ */
 .staff-screen {
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
@@ -1390,6 +1392,9 @@ button {
 
 .staff-list {
   gap: 20px;
+  flex: 1;
+  min-height: 0;
+  height: auto;
 }
 
 .staff-event {
@@ -1694,4 +1699,109 @@ button {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* ============================================================
+   Staff active/completed lists
+   ============================================================ */
+.staff-controls {
+  display: grid;
+  gap: 6px;
+  flex: 0 0 auto;
+  margin: 8px 3px 0;
+}
+
+.staff-controls-label {
+  color: #7c7365;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.staff-screen .view-switch {
+  flex: 0 0 auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.staff-screen .staff-list {
+  margin-top: 12px;
+  padding-bottom: 128px;
+}
+
+.completed-card {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 2px solid #bcd8ec;
+  border-radius: 14px;
+  background: #f4f9fd;
+  box-shadow: var(--soft-shadow);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.completed-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgb(34 26 15 / 22%);
+}
+
+.completed-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.completed-card-head h3 {
+  min-width: 0;
+  margin: 0;
+  font-size: 18px;
+  color: var(--ink);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.completed-card-head .icon-button {
+  flex: 0 0 auto;
+}
+
+.completed-card-meta {
+  margin: 0;
+  color: #6c6357;
+  font-size: 14px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.completed-card-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.lead-card-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: #e3eff8;
+  color: #1f5c8a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.lead-card-stat strong {
+  font-size: 20px;
+}
+
+.completed-card-notes {
+  margin: 0;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.completed-card-notes.muted {
+  color: #9a9184;
+  font-style: italic;
 }
