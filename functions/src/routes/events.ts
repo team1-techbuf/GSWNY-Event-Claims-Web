@@ -24,7 +24,8 @@ const createEventSchema = z.object({
   eventDate: z.string().trim().min(1),
   dayOfWeek: z.string().trim().min(1),
   startTime: z.string().trim().min(1),
-  endTime: z.string().trim().min(1),
+  // End time is optional: events can be scheduled with an end time "TBD".
+  endTime: z.string().trim().optional().default(""),
   timeNotes: z.string().trim().optional().default(""),
   eventType: z.string().trim().min(1),
   arrivalNotes: z.string().trim().optional().default(""),
@@ -38,7 +39,8 @@ const updateEventSchema = z.object({
   eventDate: z.string().trim().min(1).optional(),
   dayOfWeek: z.string().trim().min(1).optional(),
   startTime: z.string().trim().min(1).optional(),
-  endTime: z.string().trim().min(1).optional(),
+  // Allow clearing the end time back to "TBD" on edit.
+  endTime: z.string().trim().optional(),
   timeNotes: z.string().trim().optional(),
   eventType: z.string().trim().min(1).optional(),
   arrivalNotes: z.string().trim().optional(),
@@ -413,7 +415,15 @@ function parseBody<T>(schema: z.ZodType<T>, value: unknown): T {
     return schema.parse(value);
   } catch (error) {
     if (error instanceof ZodError) {
-      throw new ApiError(400, error.issues.map((issue) => issue.message).join("; "));
+      throw new ApiError(
+        400,
+        error.issues
+          .map((issue) => {
+            const field = issue.path.join(".");
+            return field ? `${field}: ${issue.message}` : issue.message;
+          })
+          .join("; "),
+      );
     }
 
     throw error;
